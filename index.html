@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Personal Homepage</title>
+<meta name="description" content="A README-driven personal academic homepage">
+<style>
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: #ffffff;
+    color: #333333;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+  }
+
+  /* ---------- Top nav ---------- */
+  nav {
+    background: #000000;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  nav .inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 6px 24px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+  nav .brand {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 17px;
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  nav a:hover { text-decoration: none; }
+
+  .page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 24px 90px;
+  }
+
+  /* ---------- Identity header: photo left, info right ---------- */
+  header.identity {
+    display: flex;
+    align-items: center;
+    gap: 72px;
+    padding: 40px 0 24px;
+  }
+  header.identity img.avatar {
+    flex: 0 0 auto;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .id-info h1 {
+    font-size: 40px;
+    font-weight: 500;
+    color: #111111;
+    margin: 0 0 14px;
+    line-height: 1.15;
+  }
+  .id-info p {
+    margin: 0 0 3px;
+    font-size: 17px;
+    color: #555555;
+  }
+  .id-info ul.links {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 14px 0 0;
+    font-size: 15px;
+  }
+  .id-info ul.links li { display: flex; align-items: center; }
+  .id-info ul.links li + li::before {
+    content: "/";
+    margin: 0 10px;
+    color: #999999;
+  }
+
+  /* ---------- Sections ---------- */
+  main h2 {
+    font-size: 27px;
+    font-weight: 500;
+    color: #555555;
+    margin: 52px 0 20px;
+  }
+  main p { margin: 0 0 16px; }
+  main ul, main ol { padding-left: 22px; margin: 0 0 16px; }
+  main li { margin-bottom: 8px; }
+  main em { color: inherit; }
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.86em;
+    background: #f2f2f2;
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+
+  a { color: #0057c2; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ---------- Publication entries ---------- */
+  main li.pub {
+    list-style: none;
+    margin: 0 0 40px;
+    display: flex;
+    gap: 30px;
+    align-items: center; /* image vertically centered against the text block */
+  }
+  main li.pub > img,
+  main li.pub > video {
+    flex: 0 0 300px;
+    width: 300px;
+    height: auto; /* keep the media's natural aspect ratio — no cropping */
+    background: #f5f5f5;
+  }
+  main li.pub .pub-body { flex: 1 1 auto; min-width: 0; }
+  main li.pub .pub-body p { margin: 0 0 6px; }
+  main li.pub .pub-body p:first-child {
+    font-size: 17px;
+    font-weight: 600;
+    color: #111111;
+    line-height: 1.45;
+  }
+  main li.pub .pub-body em {
+    font-style: normal;
+    color: #777777;
+    font-size: 14px;
+  }
+
+  footer {
+    margin-top: 70px;
+    font-size: 13px;
+    color: #aaaaaa;
+  }
+
+  .loading { color: #999999; }
+  .load-error {
+    border: 1px solid #dddddd;
+    padding: 18px 22px;
+    font-size: 14px;
+    color: #666666;
+  }
+  .load-error code { display: inline-block; margin-top: 4px; }
+
+  /* ---------- Mobile ---------- */
+  @media (max-width: 760px) {
+    header.identity { flex-direction: column; align-items: flex-start; gap: 24px; padding-top: 24px; }
+    header.identity img.avatar { width: 170px; height: 170px; }
+    .id-info h1 { font-size: 32px; }
+    main li.pub { flex-direction: column; gap: 14px; }
+    main li.pub > img, main li.pub > video { flex-basis: auto; width: 100%; height: auto; }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <div class="inner">
+    <a class="brand" href="#" id="brand">Home</a>
+  </div>
+</nav>
+
+<div class="page">
+  <header class="identity" id="identity"></header>
+  <main id="content"><p class="loading">Loading README.md …</p></main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+<script>
+(function () {
+  var README_FILE = 'README.md';
+  var identity = document.getElementById('identity');
+  var content = document.getElementById('content');
+  var brand = document.getElementById('brand');
+
+  function stripComments(s) { return s.replace(/<!--[\s\S]*?-->/g, ''); }
+
+  // Drop sections marked template:ignore (docs stay on GitHub, never on the site)
+  function stripIgnoredSections(md) {
+    return md.split(/(?=^## )/m).filter(function (block) {
+      if (!block.startsWith('## ')) return true;
+      return block.split('\n', 1)[0].indexOf('template:ignore') === -1;
+    }).join('');
+  }
+
+  function slugify(text) {
+    return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  }
+
+  function showError() {
+    content.innerHTML =
+      '<div class="load-error">Could not load <code>README.md</code>.' +
+      'If you opened this file by double-clicking, the browser blocks local file reads — ' +
+      'serve the folder instead:' +
+      '<br><code>python3 -m http.server 8000</code>' +
+      '<br>then visit <code>http://localhost:8000</code>. Deployed on GitHub Pages, this just works.</div>';
+  }
+
+  function render(md) {
+    marked.setOptions({ breaks: true, gfm: true });
+    md = stripIgnoredSections(md);
+
+    // Everything before the first "## " is the identity header; the rest is the body
+    var idx = md.search(/^## /m);
+    var headMd = idx === -1 ? md : md.slice(0, idx);
+    var bodyMd = idx === -1 ? '' : md.slice(idx);
+
+    identity.innerHTML = marked.parse(stripComments(headMd));
+    content.innerHTML = marked.parse(stripComments(bodyMd));
+
+    // —— Structure the identity header ——
+    var avatar = identity.querySelector('img');
+    var name = identity.querySelector('h1');
+    var info = document.createElement('div');
+    info.className = 'id-info';
+    Array.prototype.slice.call(identity.childNodes).forEach(function (n) {
+      if (n !== avatar && (n.nodeType !== 3 || n.textContent.trim())) info.appendChild(n);
+    });
+    if (avatar) { avatar.classList.add('avatar'); identity.appendChild(avatar); }
+    identity.appendChild(info);
+    var firstList = info.querySelector('ul, ol');
+    if (firstList) firstList.classList.add('links');
+    if (name) {
+      document.title = name.textContent;
+      brand.textContent = name.textContent;
+    }
+
+    // —— Group body content into anchored sections by h2 ——
+    var nodes = Array.prototype.slice.call(content.childNodes);
+    var section = null;
+    nodes.forEach(function (n) {
+      if (n.nodeType === 1 && n.tagName === 'H2') {
+        section = document.createElement('section');
+        section.id = slugify(n.textContent);
+        content.insertBefore(section, n);
+        section.appendChild(n);
+      } else if (section) {
+        section.appendChild(n);
+      }
+    });
+
+    // —— Publication entries: list items starting with an image/video → thumbnail layout ——
+    // An image whose src ends in .mp4/.webm/.mov is swapped for an autoplaying,
+    // muted, looping, control-free <video> with identical layout.
+    var VIDEO_EXT = /\.(mp4|webm|mov|m4v)(\?.*)?$/i;
+    content.querySelectorAll('li img, li video').forEach(function (media) {
+      if (media.tagName === 'IMG' && VIDEO_EXT.test(media.getAttribute('src') || '')) {
+        var v = document.createElement('video');
+        v.src = media.getAttribute('src');
+        v.autoplay = true;
+        v.muted = true;           // autoplay only works muted
+        v.loop = true;
+        v.playsInline = true;
+        v.setAttribute('muted', '');
+        v.setAttribute('playsinline', '');
+        v.setAttribute('disablepictureinpicture', '');
+        media.replaceWith(v);
+        media = v;
+      }
+      var li = media.closest('li');
+      var p = media.closest('p');
+      li.classList.add('pub');
+      if (p && p.childNodes.length === 1) p.replaceWith(media); // hoist the media out of its paragraph
+      var body = document.createElement('div');
+      body.className = 'pub-body';
+      Array.prototype.slice.call(li.childNodes).forEach(function (child) {
+        if (child !== media && (child.nodeType !== 3 || child.textContent.trim())) {
+          body.appendChild(child);
+        }
+      });
+      li.appendChild(media);
+      li.appendChild(body);
+    });
+
+    // Open external links in a new tab
+    content.querySelectorAll('a[href^="http"], .id-info a[href^="http"]').forEach(function (a) {
+      a.target = '_blank';
+      a.rel = 'noopener';
+    });
+
+    // Footer
+    var footer = document.createElement('footer');
+    footer.textContent = 'Powered by Jinghua Hou.';
+    content.appendChild(footer);
+  }
+
+  if (typeof marked === 'undefined') { showError(); return; }
+
+  fetch(README_FILE, { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(render)
+    .catch(showError);
+})();
+</script>
+</body>
+</html>
