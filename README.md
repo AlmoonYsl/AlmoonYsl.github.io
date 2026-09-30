@@ -16,11 +16,11 @@ Hi, I am a first-year PhD student at The University of Hong Kong, fortunately su
 
 ## News
 
-- **[2026]** Two papers (**FASTER**, **StreamPI**) accepted to **NeurIPS 2026**.
-- **[2025]** **HybridTM** accepted to **IROS 2025**.
-- **[2024]** **LION** accepted to **NeurIPS 2024**.
-- **[2024]** Two papers (**SEED**, **OPEN**) accepted to **ECCV 2024**.
-- **[2023]** **QTNet** accepted to **NeurIPS 2023**.
+- **[2026]** Two papers (FASTER**, StreamPI) accepted to **NeurIPS 2026**.
+- **[2025]** HybridTM accepted to **IROS 2025**.
+- **[2024]** LION accepted to **NeurIPS 2024**.
+- **[2024]** Two papers (SEED, OPEN) accepted to **ECCV 2024**.
+- **[2023]** QTNet accepted to **NeurIPS 2023**.
 
 ## Selected Publications
 
@@ -59,7 +59,7 @@ Hi, I am a first-year PhD student at The University of Hong Kong, fortunately su
 - ![thumbnail](assets/qtnet.png)
   **[Query-based Temporal Fusion with Explicit Motion for 3D Object Detection](https://openreview.net/pdf?id=gySmwdmVDF)**
   *NeurIPS 2023*
-  **Jinghua Hou**, Zhe Liu, Zhiying Zou, Xiaoqing Ye, Xiang Bai
+  **Jinghua Hou**, Zhe Liu, Dingkang Liang, Zhikang Zou, Xiaoqing Ye, Xiang Bai
   [Paper](https://openreview.net/pdf?id=gySmwdmVDF) [Code](https://github.com/AlmoonYsl/QTNet)
 
 
