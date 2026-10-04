@@ -16,7 +16,7 @@ Hi, I am a first-year PhD student at The University of Hong Kong, fortunately su
 
 ## News
 
-- **[2026]** Two papers (FASTER**, StreamPI) accepted to **NeurIPS 2026**.
+- **[2026]** Two papers (FASTER, StreamPI) accepted to **NeurIPS 2026**.
 - **[2025]** HybridTM accepted to **IROS 2025**.
 - **[2024]** LION accepted to **NeurIPS 2024**.
 - **[2024]** Two papers (SEED, OPEN) accepted to **ECCV 2024**.
