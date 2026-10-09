@@ -29,7 +29,7 @@ Hi, I am a first-year PhD student at The University of Hong Kong, fortunately su
 - ![thumbnail](projects/DVD/DVD_files/intro.png)
   **[DVD: Dynamic Vector Decoding for Efficient MLLM-based Perception](https://arxiv.org/abs/2610.12266)**
   *arXiv 2026*
-  Jinghua Hou, Zhe Liu, Hengshuang Zhao
+  **Jinghua Hou**, Zhe Liu, Hengshuang Zhao
   [Paper](https://arxiv.org/abs/2610.12266) [Page](https://almoonysl.github.io/projects/DVD/) [Code](https://github.com/AlmoonYsl/DVD)
 
 - ![thumbnail](assets/streampi.mp4)
