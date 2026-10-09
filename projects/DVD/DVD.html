@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="description" content="DVD: Dynamic Vector Decoding for Efficient MLLM-based Perception">
+  <meta property="og:title" content="DVD: Dynamic Vector Decoding for Efficient MLLM-based Perception">
+  <meta property="og:description" content="DVD unifies 2D and 3D perception for MLLMs with compact dynamic vector tokens, reducing token overhead and latency.">
+  <meta property="og:url" content="https://almoonysl.github.io/projects/DVD">
+  <meta property="og:image" content="DVD_files/intro.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:title" content="DVD: Dynamic Vector Decoding for Efficient MLLM-based Perception">
+  <meta name="twitter:description" content="DVD unifies 2D and 3D perception for MLLMs with compact dynamic vector tokens, reducing token overhead and latency.">
+  <meta name="twitter:image" content="DVD_files/intro.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="keywords" content="DVD, Dynamic Vector Decoding, MLLM, Multimodal Large Language Model, Perception, 2D Grounding, 3D Grounding, Referring Segmentation">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>DVD</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=&#39;http://www.w3.org/2000/svg&#39; viewBox=&#39;0 0 100 100&#39;%3E%3Ctext y=&#39;.9em&#39; font-size=&#39;90&#39;%3E%F0%9F%93%90%3C/text%3E%3C/svg%3E">
+  <link href="./DVD_files/css" rel="stylesheet">
+  <link rel="stylesheet" href="./DVD_files/bulma.min.css">
+  <link rel="stylesheet" href="./DVD_files/academicons.min.css">
+  <link rel="stylesheet" href="./DVD_files/index.css">
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)'], ['$', '$']]
+      }
+    };
+  </script>
+  <script defer="" src="./DVD_files/tex-chtml.js"></script>
+  <style>
+    .citation-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .copy-citation-button {
+      border: 1px solid #dbdbdb;
+      background: #fff;
+      color: #363636;
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.95rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    .copy-citation-button:hover { background: #f5f5f5; border-color: #b5b5b5; }
+    .copy-citation-button.is-copied { background: #48c78e; border-color: #48c78e; color: #fff; }
+    .author-note { font-size: 0.9rem; color: #6b7280; margin-top: 0.4rem; }
+    .affiliation-logo { height: 2em; width: auto; vertical-align: middle; margin-right: 0.35em; margin-top: -0.2em; }
+    .figure-caption { text-align: center; color: #475569; font-size: 0.95rem; margin-top: 0.75rem; font-style: italic; }
+    .teaser .hero-body { padding-bottom: 1rem; }
+    .teaser-image { margin-top: 0.5rem; margin-bottom: 0; }
+    .teaser-summary { margin-top: 0.75rem; }
+    .section { padding: 1.75rem 1.5rem; }
+    .section h2.title.is-3 { margin-bottom: 0.75rem; }
+    .section-subtitle-spaced { margin-top: 1.25rem; margin-bottom: 0.5rem; }
+    .section-copy { margin-bottom: 0.75rem; }
+    .figure-centered { margin: 0; }
+    .method-figure { width: 100%; max-width: 100%; height: auto; object-fit: contain; margin: 0; }
+    .vis-figure { width: 100%; height: auto; border-radius: 12px; box-shadow: 0 12px 24px rgba(15,23,42,0.10); }
+    .image-container { line-height: 0; }
+    .image-container img { border-radius: 12px; }
+    .visual-grid { margin: 1rem 0 0.75rem; }
+    .visual-card {
+      text-align: center;
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .visual-card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: #ffffff;
+      background: #1e293b;
+      padding: 0.35rem 0.9rem;
+      border-radius: 6px;
+      display: inline-block;
+    }
+    .visual-card-img-wrap {
+      width: 100%;
+      height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8fafc;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(15,23,42,0.10);
+      overflow: hidden;
+    }
+    .visual-card-img-wrap img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+    .gallery-item { margin-bottom: 2rem; }
+    .gallery-item img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 12px 24px rgba(15,23,42,0.10);
+    }
+    .metrics-highlight-row { background: #eff6ff; font-weight: 600; }
+    .metrics-group-start { border-top: 2px solid #94a3b8; }
+    .metrics-table th[rowspan] { vertical-align: middle; }
+    .metrics-table th[rowspan] .cell-center { display: inline-flex; align-items: center; justify-content: center; height: 100%; }
+    .ablation-grid { margin-top: 1rem; }
+    .ablation-card-title { font-size: 0.95rem; font-weight: 700; color: #334155; text-align: center; margin-bottom: 0.4rem; }
+  </style>
+</head>
+
+<body>
+
+  <section class="hero hero-top">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 is-size-3-mobile publication-title">DVD: Dynamic Vector Decoding for Efficient MLLM-based Perception</h1>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block"><a href="https://almoonysl.github.io/" target="_blank" rel="noopener noreferrer">Jinghua Hou</a>,</span>
+              <span class="author-block"><a href="https://happinesslz.github.io/" target="_blank" rel="noopener noreferrer">Zhe Liu</a><sup>*</sup>,</span>
+              <span class="author-block"><a href="https://i.cs.hku.hk/~hszhao/" target="_blank" rel="noopener noreferrer">Hengshuang Zhao</a><sup>†</sup></span>
+            </div>
+            <div class="is-size-5 publication-authors publication-affiliations">
+              <span class="author-block"><img src="./DVD_files/hku_shield.svg" alt="HKU shield" class="affiliation-logo">The University of Hong Kong</span>
+            </div>
+            <div class="author-note"><sup>*</sup> Project Leader. <sup>†</sup> Corresponding author.</div>
+
+            <div class="has-text-centered">
+              <div class="publication-links">
+                <span class="link-block">
+                  <a href="#" class="external-link button is-normal is-rounded is-dark is-static-link">
+                    <span class="icon"><img src="./DVD_files/arxiv-icon.svg" alt="arXiv" style="height:1em; width:auto; display:block;"></span>
+                    <span>Paper</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="https://github.com/AlmoonYsl/DVD" class="external-link button is-normal is-rounded is-dark is-static-link">
+                    <span class="icon github-icon" aria-hidden="true">
+                      <svg viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"></path>
+                      </svg>
+                    </span>
+                    <span>Code</span>
+                  </a>
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hero teaser">
+    <div class="container is-max-desktop">
+      <div class="hero-body">
+        <div class="image-container teaser-image">
+          <img src="./DVD_files/intro.png" alt="DVD teaser" decoding="async" style="width: 100%; height: auto; object-fit: contain;">
+        </div>
+        <p class="figure-caption">Comparison of MLLM perception paradigms. Existing methods either use text tokens (high token count, e.g., 512 tokens for masks) or special coordinate tokens (limited range and precision) to encode perception outputs. DVD unifies diverse 2D/3D representations into 1D sequences with a unified codebook in high-dimensional space, yielding compact and high-precision representations with fewer tokens and consistent latency reduction across 2D and 3D tasks.</p>
+        <h3 class="subtitle teaser-summary has-text-justified">
+          Existing MLLM-based perception methods rely on text-based coordinates or fixed-range special tokens, suffering from excessive token overhead and precision constraints, especially in 3D domains. <b>DVD</b> (Dynamic Vector Decoding) converts 2D boxes, 2D masks, and 3D boxes into 1D vector sequences, and learns a unified codebook in high-dimensional space. A lightweight de-tokenizer then maps the discrete tokens back to original perceptual representations, enabling seamless integration with MLLMs while dramatically reducing token count and inference latency.
+        </h3>
+      </div>
+    </div>
+  </section>
+
+  <section class="section hero is-light abstract-section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths abstract-card">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <p>
+              Multimodal large language models have made remarkable progress in bridging vision and language, facilitating various perception tasks essential for human-machine interaction, robotics, and autonomous driving. However, existing MLLM-based perception methods predominantly rely on text-based coordinate representation, which suffers from excessive token overhead, or fixed-range quantization, which suffers from range and precision constraints, especially for 3D domains with unbounded spatial range and high localization accuracy requirements.
+              To address these challenges, we propose a dynamic vector decoding method named <b>DVD</b>, which unifies the representation of 2D and 3D perception tasks. Specifically, we first transform diverse perceptual representations (i.e., 2D bounding boxes, 2D masks, and 3D bounding boxes) into 1D vector sequences, which are then mapped to compact discrete tokens in the high-dimensional space. Then, a lightweight de-tokenizer enables seamless integration with MLLMs by decoding output tokens back to original 2D and 3D perceptual representations.
+              Extensive experiments on 2D and 3D perception benchmarks including RefCOCO series, SUN-RGBD, KITTI, Hypersim, and nuScenes demonstrate that DVD achieves superior performance in 2D and 3D tasks and significantly reduces token overhead and inference latency. DVD provides an efficient and general framework for integrating perception capabilities into MLLMs, overcoming the inherent limitations of existing methods.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3">DVD Framework</h2>
+      <h3 class="subtitle is-4 section-subtitle-spaced">Why Existing MLLM Perception is Inefficient</h3>
+      <div class="content has-text-justified section-copy">
+        <p>
+          Existing MLLM-based perception methods typically represent coordinates as text tokens or discrete special tokens within a fixed integer range. Text-based methods can represent arbitrary precision and range, but they generate a large number of tokens (e.g., 512 tokens for a mask) and force the model to learn the structure of floating-point numbers. Fixed-range quantization reduces token count, but it sacrifices range and precision—critical limitations when moving from constrained 2D images to unbounded 3D scenes.
+        </p>
+      </div>
+
+      <h3 class="subtitle is-4 section-subtitle-spaced">Unified 1D Vector Representation</h3>
+      <div class="content has-text-justified section-copy">
+        <p>
+          DVD unifies heterogeneous perceptual outputs by flattening them into 1D vector sequences:
+        </p>
+        <ul>
+          <li><b>2D bounding box:</b> $(x_1, y_1, x_2, y_2)$</li>
+          <li><b>2D mask:</b> fixed number of edge points $(x_1, y_1, \ldots, x_N, y_N)$ sampled clockwise and normalized by image size</li>
+          <li><b>3D bounding box:</b> $(x, y, z, w, h, l, R)$, where $R \in \mathbb{R}^{3 \times 3}$ is the rotation matrix; raw values are preserved to maintain unbounded range and precision</li>
+        </ul>
+      </div>
+
+      <h3 class="subtitle is-4 section-subtitle-spaced">Dynamic Vector Representation Learning</h3>
+      <div class="image-container figure-centered">
+        <img src="./DVD_files/vae.png" alt="Dynamic vector representation learning" loading="lazy" decoding="async" class="method-figure">
+      </div>
+      <p class="figure-caption">Dynamic vector representation learning. 1D sequences serve as unified 2D/3D perceptual representations; a 1D encoder maps them into high-dimensional space for adaptive quantization and compression, a task-agnostic geometric loss supervises the heterogeneous representation learning, and a decoder recovers the original representations from the discrete tokens.</p>
+      <div class="content has-text-justified section-copy">
+        <p>
+          A 1D encoder-decoder architecture maps the vector sequences into a latent space and reconstructs them via a learnable codebook. Given an input sequence $\mathbf{s} \in \mathbb{R}^{B \times L \times 1}$, the encoder produces latent vectors $\mathbf{z} \in \mathbb{R}^{B \times \frac{L}{K} \times C}$, where $K$ is the downsampling factor and $C$ is the feature dimension. Each latent vector is quantized to the nearest codebook entry. The symmetric decoder upsamples the quantized vectors back to the original sequence.
+        </p>
+        <p>
+          Beyond the standard reconstruction and VQ losses, we introduce a task-agnostic <b>geometric loss</b> based on the bidirectional chamfer distance. The per-dimension L1 loss is sensitive to point ordering and parameterization rather than the underlying geometry, while the VQ loss only constrains the latent space. The geometric loss is permutation-invariant: for 3D tasks it computes the average minimum L1 distance between predicted and target 3D box vertices, and for 2D tasks between predicted and target 2D point sets, providing unified geometric supervision for both 2D and 3D perception tasks. The model is trained end-to-end with a combined loss:
+        </p>
+        <p style="text-align: center;">
+          $\mathcal{L}_{\text{total}} = \lambda_1 \cdot \mathcal{L}_{\text{L1}} + \lambda_2 \cdot \mathcal{L}_{\text{VQ}} + \lambda_3 \cdot \mathcal{L}_{\text{geo}}$
+        </p>
+        <p>
+          where the L1 loss ensures reconstruction accuracy, the VQ loss updates the codebook, and the geometric loss preserves the spatial structure (corners, edges, and shapes) of the decoded representations.
+        </p>
+      </div>
+
+      <h3 class="subtitle is-4 section-subtitle-spaced">Dynamic Vector Decoding with MLLMs</h3>
+      <div class="image-container figure-centered">
+        <img src="./DVD_files/arch.png" alt="DVD architecture overview" loading="lazy" decoding="async" class="method-figure">
+      </div>
+      <p class="figure-caption">Overview of DVD. The MLLM vocabulary is extended with learned unified tokens and trained following standard LLM paradigms without modifications; at inference, a lightweight de-tokenizer reconstructs the original perceptual outputs from the discrete tokens with minimal overhead, drastically reducing sequence length and improving efficiency.</p>
+      <div class="content has-text-justified section-copy">
+        <p>
+          To integrate with MLLMs, we extend the vocabulary with $M$ new tokens corresponding to the $M$ code vectors in the codebook. The MLLM is then fine-tuned with the standard next-token prediction objective, without modifying the backbone. During inference, perception tokens from the MLLM output are fed into the pre-trained decoder (used as a de-tokenizer) to recover the 1D vector sequence, which is then reshaped into 2D boxes, masks, or 3D boxes. Because each perceptual output is represented by only a few tokens, the sequence length fed to the MLLM is greatly reduced, cutting latency while preserving spatial precision.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3">Experiments</h2>
+      <h3 class="subtitle is-4 section-subtitle-spaced">Datasets and Metrics</h3>
+      <div class="content has-text-justified section-copy">
+        <p>
+          We evaluate DVD on 2D and 3D perception benchmarks. For <b>3D grounding</b>, we use SUN-RGBD, Hypersim, ARKitScenes, KITTI, and nuScenes, covering indoor and outdoor scenarios, and report <i>AP3D@15</i> following Omni3D. For <b>2D grounding</b> and <b>referring expression segmentation (RES)</b>, we use RefCOCO, RefCOCO+, and RefCOCOg, and report <i>Precision@0.5</i> and <i>cIoU</i>, respectively. The same trained model is used to validate the performance of all tasks.
+        </p>
+        <p>
+          The unified vector autoencoder is trained on approximately 1.98M 3D boxes, 2.31M 2D boxes, and 1.52M 2D masks, with downsampling factor $K{=}2$, codebook size 4096, and latent channel 16. The MLLM is built on Qwen3-VL (2B and 8B variants) and fully fine-tuned on 2.0M mixed 2D/3D perception QAs.
+        </p>
+      </div>
+
+      <h3 class="subtitle is-4 section-subtitle-spaced">Overall Performance</h3>
+      <div class="content has-text-justified section-copy">
+        <p>
+          Benefiting from dynamic vector decoding, DVD-2B surpasses SOTA MLLM-based methods on 3D grounding with 40.0%, 15.7%, and 19.8% AP3D on SUN-RGBD, Hypersim, and nuScenes, and achieves 89.9% Precision and 70.4% cIoU on RefCOCOg val — all with a single unified 2B model. With a larger backbone, DVD-8B further reaches 40.3%, 18.4%, and 24.4% AP3D on the three 3D datasets, and 88.7% Precision and 73.4% cIoU on RefCOCOg val.
+        </p>
+      </div>
+      <div class="table-scroll" style="margin-top: 1rem;">
+        <table class="metrics-table metrics-table-tab2">
+          <thead>
+            <tr>
+              <th rowspan="2"><span class="cell-center">Method</span></th>
+              <th colspan="3"><span class="cell-center">3D Grounding (AP3D@15)</span></th>
+              <th colspan="3"><span class="cell-center">2D Grounding (P@0.5)</span></th>
+              <th colspan="3"><span class="cell-center">2D RES (cIoU)</span></th>
+            </tr>
+            <tr>
+              <th><span class="cell-center">SUN-RGBD</span></th>
+              <th><span class="cell-center">Hypersim</span></th>
+              <th><span class="cell-center">nuScenes</span></th>
+              <th><span class="cell-center">RefCOCO</span></th>
+              <th><span class="cell-center">RefCOCO+</span></th>
+              <th><span class="cell-center">RefCOCOg</span></th>
+              <th><span class="cell-center">RefCOCO</span></th>
+              <th><span class="cell-center">RefCOCO+</span></th>
+              <th><span class="cell-center">RefCOCOg</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="cell-center">GroundingDINO</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">90.6</span></td><td><span class="cell-center">88.2</span></td><td><span class="cell-center">86.1</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td></tr>
+            <tr><td><span class="cell-center">VistaLLM-7B</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">88.1</span></td><td><span class="cell-center">82.9</span></td><td><span class="cell-center">83.6</span></td><td><span class="cell-center">74.5</span></td><td><span class="cell-center">69.1</span></td><td><span class="cell-center">69.0</span></td></tr>
+            <tr><td><span class="cell-center">LISA-7B</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">74.9</span></td><td><span class="cell-center">65.1</span></td><td><span class="cell-center">67.9</span></td></tr>
+            <tr><td><span class="cell-center">Text4Seg</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">88.3</span></td><td><span class="cell-center">83.5</span></td><td><span class="cell-center">82.4</span></td><td><span class="cell-center">74.7</span></td><td><span class="cell-center">68.5</span></td><td><span class="cell-center">70.7</span></td></tr>
+            <tr><td><span class="cell-center">Qwen2.5-VL-3B</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">89.1</span></td><td><span class="cell-center">82.4</span></td><td><span class="cell-center">85.2</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td></tr>
+            <tr><td><span class="cell-center">Qwen2.5-VL-7B</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">90.0</span></td><td><span class="cell-center">84.2</span></td><td><span class="cell-center">87.2</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td></tr>
+            <tr><td><span class="cell-center">Rex-Omni</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">86.6</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td></tr>
+            <tr><td><span class="cell-center">Seed1.5-VL</span></td><td><span class="cell-center">33.5</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td></tr>
+            <tr><td><span class="cell-center">Qwen3-VL-2B</span></td><td><span class="cell-center">33.8</span></td><td><span class="cell-center">12.0</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">89.2</span></td><td><span class="cell-center">80.4</span></td><td><span class="cell-center">84.0</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td></tr>
+            <tr><td><span class="cell-center">Qwen3-VL-8B</span></td><td><span class="cell-center">36.2</span></td><td><span class="cell-center">12.7</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">91.6</span></td><td><span class="cell-center">86.1</span></td><td><span class="cell-center">87.7</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td></tr>
+            <tr><td><span class="cell-center">VST-3B</span></td><td><span class="cell-center">37.3</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td></tr>
+            <tr class="metrics-group-start metrics-highlight-row"><td><span class="cell-center"><b>DVD-2B</b></span></td><td><span class="cell-center">40.0</span></td><td><span class="cell-center">15.7</span></td><td><span class="cell-center">19.8</span></td><td><span class="cell-center"><b>93.5</b></span></td><td><span class="cell-center"><b>87.7</b></span></td><td><span class="cell-center"><b>89.9</b></span></td><td><span class="cell-center">69.9</span></td><td><span class="cell-center">64.2</span></td><td><span class="cell-center">70.4</span></td></tr>
+            <tr class="metrics-highlight-row"><td><span class="cell-center"><b>DVD-8B</b></span></td><td><span class="cell-center"><b>40.3</b></span></td><td><span class="cell-center"><b>18.4</b></span></td><td><span class="cell-center"><b>24.4</b></span></td><td><span class="cell-center">93.0</span></td><td><span class="cell-center"><b>87.7</b></span></td><td><span class="cell-center">88.7</span></td><td><span class="cell-center"><b>75.4</b></span></td><td><span class="cell-center"><b>70.1</b></span></td><td><span class="cell-center"><b>73.4</b></span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="figure-caption">Main results on 3D grounding (AP3D@15), 2D grounding (P@0.5), and 2D RES (cIoU). A single unified model is used for all tasks.</p>
+
+      <h3 class="subtitle is-4 section-subtitle-spaced">3D Grounding</h3>
+      <div class="content has-text-justified section-copy">
+        <p>
+          DVD-2B outperforms prior MLLM-based 3D perception methods across indoor and outdoor scenarios, surpassing VST-3B by 2.7% and 10.7% AP3D on SUN-RGBD and ARKitScenes. With a larger backbone, DVD-8B further achieves 40.3% and 24.4% AP3D on SUN-RGBD and nuScenes.
+        </p>
+      </div>
+      <div class="table-scroll" style="margin-top: 1rem;">
+        <table class="metrics-table metrics-table-tab2">
+          <thead>
+            <tr>
+              <th><span class="cell-center">Method</span></th>
+              <th><span class="cell-center">SUN-RGBD</span></th>
+              <th><span class="cell-center">Hypersim</span></th>
+              <th><span class="cell-center">ARKitScenes</span></th>
+              <th><span class="cell-center">KITTI</span></th>
+              <th><span class="cell-center">nuScenes</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="cell-center">Gemini 2.0 Pro</span></td><td><span class="cell-center">32.5</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td></tr>
+            <tr><td><span class="cell-center">Gemini 2.5 Pro</span></td><td><span class="cell-center">29.7</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td></tr>
+            <tr><td><span class="cell-center">Seed1.5-VL</span></td><td><span class="cell-center">33.5</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td></tr>
+            <tr><td><span class="cell-center">Qwen3-VL-2B</span></td><td><span class="cell-center">33.8</span></td><td><span class="cell-center">12.0</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td></tr>
+            <tr><td><span class="cell-center">Qwen3-VL-8B</span></td><td><span class="cell-center">36.2</span></td><td><span class="cell-center">12.7</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td></tr>
+            <tr><td><span class="cell-center">VST-3B</span></td><td><span class="cell-center">37.3</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">51.7</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td></tr>
+            <tr class="metrics-group-start metrics-highlight-row"><td><span class="cell-center"><b>DVD-2B</b></span></td><td><span class="cell-center">40.0</span></td><td><span class="cell-center">15.7</span></td><td><span class="cell-center"><b>62.4</b></span></td><td><span class="cell-center"><b>31.4</b></span></td><td><span class="cell-center">19.8</span></td></tr>
+            <tr class="metrics-highlight-row"><td><span class="cell-center"><b>DVD-8B</b></span></td><td><span class="cell-center"><b>40.3</b></span></td><td><span class="cell-center"><b>18.4</b></span></td><td><span class="cell-center">62.1</span></td><td><span class="cell-center">28.7</span></td><td><span class="cell-center"><b>24.4</b></span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="subtitle is-4 section-subtitle-spaced">2D Grounding</h3>
+      <div class="content has-text-justified section-copy">
+        <p>
+          Despite being designed for unified 2D and 3D perception, DVD still outperforms advanced 2D grounding methods on the RefCOCO series: DVD-2B achieves 90.0% Precision on RefCOCOg test, surpassing Rex-Omni by 3.2%.
+        </p>
+      </div>
+      <div class="table-scroll" style="margin-top: 1rem;">
+        <table class="metrics-table metrics-table-tab2">
+          <thead>
+            <tr>
+              <th><span class="cell-center">Method</span></th>
+              <th><span class="cell-center">RefCOCO val</span></th>
+              <th><span class="cell-center">RefCOCO testA</span></th>
+              <th><span class="cell-center">RefCOCO testB</span></th>
+              <th><span class="cell-center">RefCOCO+ val</span></th>
+              <th><span class="cell-center">RefCOCO+ testA</span></th>
+              <th><span class="cell-center">RefCOCO+ testB</span></th>
+              <th><span class="cell-center">RefCOCOg val</span></th>
+              <th><span class="cell-center">RefCOCOg test</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="cell-center">GroundingDINO</span></td><td><span class="cell-center">90.6</span></td><td><span class="cell-center">93.2</span></td><td><span class="cell-center">88.2</span></td><td><span class="cell-center">88.2</span></td><td><span class="cell-center">89.0</span></td><td><span class="cell-center">75.9</span></td><td><span class="cell-center">86.1</span></td><td><span class="cell-center">87.0</span></td></tr>
+            <tr><td><span class="cell-center">Qwen2.5-VL-7B</span></td><td><span class="cell-center">90.0</span></td><td><span class="cell-center">92.5</span></td><td><span class="cell-center">85.4</span></td><td><span class="cell-center">84.2</span></td><td><span class="cell-center">89.1</span></td><td><span class="cell-center">76.9</span></td><td><span class="cell-center">87.2</span></td><td><span class="cell-center">87.2</span></td></tr>
+            <tr><td><span class="cell-center">Rex-Omni</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">86.6</span></td><td><span class="cell-center">86.8</span></td></tr>
+            <tr><td><span class="cell-center">Seed1.5-VL</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">84.7</span></td><td><span class="cell-center">85.2</span></td></tr>
+            <tr><td><span class="cell-center">InternVL3.5-8B</span></td><td><span class="cell-center">92.4</span></td><td><span class="cell-center">94.7</span></td><td><span class="cell-center">88.7</span></td><td><span class="cell-center">87.9</span></td><td><span class="cell-center">92.4</span></td><td><span class="cell-center">82.4</span></td><td><span class="cell-center">89.6</span></td><td><span class="cell-center">89.4</span></td></tr>
+            <tr><td><span class="cell-center">UFO-8B</span></td><td><span class="cell-center">91.8</span></td><td><span class="cell-center">94.3</span></td><td><span class="cell-center">87.5</span></td><td><span class="cell-center">86.9</span></td><td><span class="cell-center">91.3</span></td><td><span class="cell-center">80.6</span></td><td><span class="cell-center">87.9</span></td><td><span class="cell-center">88.6</span></td></tr>
+            <tr><td><span class="cell-center">Qwen3-VL-8B</span></td><td><span class="cell-center">91.6</span></td><td><span class="cell-center">93.1</span></td><td><span class="cell-center">88.7</span></td><td><span class="cell-center">86.1</span></td><td><span class="cell-center">91.1</span></td><td><span class="cell-center">80.0</span></td><td><span class="cell-center">87.7</span></td><td><span class="cell-center">88.4</span></td></tr>
+            <tr class="metrics-group-start metrics-highlight-row"><td><span class="cell-center"><b>DVD-2B</b></span></td><td><span class="cell-center"><b>93.5</b></span></td><td><span class="cell-center"><b>95.5</b></span></td><td><span class="cell-center"><b>90.7</b></span></td><td><span class="cell-center"><b>87.7</b></span></td><td><span class="cell-center"><b>92.9</b></span></td><td><span class="cell-center">82.4</span></td><td><span class="cell-center"><b>89.9</b></span></td><td><span class="cell-center"><b>90.0</b></span></td></tr>
+            <tr class="metrics-highlight-row"><td><span class="cell-center"><b>DVD-8B</b></span></td><td><span class="cell-center">93.0</span></td><td><span class="cell-center">95.2</span></td><td><span class="cell-center">89.7</span></td><td><span class="cell-center"><b>87.7</b></span></td><td><span class="cell-center"><b>92.9</b></span></td><td><span class="cell-center"><b>82.7</b></span></td><td><span class="cell-center">88.7</span></td><td><span class="cell-center">89.8</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="subtitle is-4 section-subtitle-spaced">2D Referring Expression Segmentation</h3>
+      <div class="content has-text-justified section-copy">
+        <p>
+          DVD also generalizes to fine-grained 2D referring expression segmentation (RES). Despite having far fewer parameters and being a unified model, DVD-2B remains competitive with VistaLLM-7B on RefCOCOg test while running at much lower latency thanks to the reduced token overhead. With a larger backbone, DVD-8B achieves 73.4% and 76.6% cIoU on RefCOCOg val and test.
+        </p>
+      </div>
+      <div class="table-scroll" style="margin-top: 1rem;">
+        <table class="metrics-table metrics-table-tab2">
+          <thead>
+            <tr>
+              <th><span class="cell-center">Method</span></th>
+              <th><span class="cell-center">RefCOCO val</span></th>
+              <th><span class="cell-center">RefCOCO testA</span></th>
+              <th><span class="cell-center">RefCOCO testB</span></th>
+              <th><span class="cell-center">RefCOCO+ val</span></th>
+              <th><span class="cell-center">RefCOCO+ testA</span></th>
+              <th><span class="cell-center">RefCOCO+ testB</span></th>
+              <th><span class="cell-center">RefCOCOg val</span></th>
+              <th><span class="cell-center">RefCOCOg test</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="cell-center">VLT</span></td><td><span class="cell-center">67.5</span></td><td><span class="cell-center">70.5</span></td><td><span class="cell-center">65.2</span></td><td><span class="cell-center">56.3</span></td><td><span class="cell-center">61.0</span></td><td><span class="cell-center">50.1</span></td><td><span class="cell-center">55.0</span></td><td><span class="cell-center">57.7</span></td></tr>
+            <tr><td><span class="cell-center">LAVT</span></td><td><span class="cell-center">72.7</span></td><td><span class="cell-center">75.8</span></td><td><span class="cell-center">68.8</span></td><td><span class="cell-center">62.1</span></td><td><span class="cell-center">68.4</span></td><td><span class="cell-center">55.1</span></td><td><span class="cell-center">61.2</span></td><td><span class="cell-center">62.1</span></td></tr>
+            <tr><td><span class="cell-center">VistaLLM-7B</span></td><td><span class="cell-center">74.5</span></td><td><span class="cell-center">76.0</span></td><td><span class="cell-center">72.7</span></td><td><span class="cell-center">69.1</span></td><td><span class="cell-center">73.7</span></td><td><span class="cell-center">64.0</span></td><td><span class="cell-center">69.0</span></td><td><span class="cell-center">70.9</span></td></tr>
+            <tr><td><span class="cell-center">LISA-7B</span></td><td><span class="cell-center">74.9</span></td><td><span class="cell-center"><b>79.1</b></span></td><td><span class="cell-center">72.3</span></td><td><span class="cell-center">65.1</span></td><td><span class="cell-center">70.8</span></td><td><span class="cell-center">58.1</span></td><td><span class="cell-center">67.9</span></td><td><span class="cell-center">70.6</span></td></tr>
+            <tr><td><span class="cell-center">M<sup>2</sup>SA</span></td><td><span class="cell-center">74.0</span></td><td><span class="cell-center">76.8</span></td><td><span class="cell-center">69.7</span></td><td><span class="cell-center">63.1</span></td><td><span class="cell-center">67.2</span></td><td><span class="cell-center">56.1</span></td><td><span class="cell-center">67.0</span></td><td><span class="cell-center">68.3</span></td></tr>
+            <tr><td><span class="cell-center">PixelLM-7B</span></td><td><span class="cell-center">73.0</span></td><td><span class="cell-center">76.5</span></td><td><span class="cell-center">68.2</span></td><td><span class="cell-center">66.3</span></td><td><span class="cell-center">71.7</span></td><td><span class="cell-center">58.3</span></td><td><span class="cell-center">69.3</span></td><td><span class="cell-center">70.5</span></td></tr>
+            <tr><td><span class="cell-center">Text4Seg</span></td><td><span class="cell-center">74.7</span></td><td><span class="cell-center">77.4</span></td><td><span class="cell-center">71.6</span></td><td><span class="cell-center">68.5</span></td><td><span class="cell-center">73.6</span></td><td><span class="cell-center">62.9</span></td><td><span class="cell-center">70.7</span></td><td><span class="cell-center">71.6</span></td></tr>
+            <tr><td><span class="cell-center">PerceptionGPT-7B</span></td><td><span class="cell-center">75.1</span></td><td><span class="cell-center">78.6</span></td><td><span class="cell-center">71.7</span></td><td><span class="cell-center">68.5</span></td><td><span class="cell-center">73.9</span></td><td><span class="cell-center">61.3</span></td><td><span class="cell-center">70.3</span></td><td><span class="cell-center">71.7</span></td></tr>
+            <tr class="metrics-group-start metrics-highlight-row"><td><span class="cell-center"><b>DVD-2B</b></span></td><td><span class="cell-center">69.9</span></td><td><span class="cell-center">70.7</span></td><td><span class="cell-center">69.7</span></td><td><span class="cell-center">64.2</span></td><td><span class="cell-center">68.2</span></td><td><span class="cell-center">61.8</span></td><td><span class="cell-center">70.4</span></td><td><span class="cell-center">71.0</span></td></tr>
+            <tr class="metrics-highlight-row"><td><span class="cell-center"><b>DVD-8B</b></span></td><td><span class="cell-center"><b>75.4</b></span></td><td><span class="cell-center">76.9</span></td><td><span class="cell-center"><b>74.6</b></span></td><td><span class="cell-center"><b>70.1</b></span></td><td><span class="cell-center"><b>74.7</b></span></td><td><span class="cell-center"><b>65.9</b></span></td><td><span class="cell-center"><b>73.4</b></span></td><td><span class="cell-center"><b>76.6</b></span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="subtitle is-4 section-subtitle-spaced">Computation Cost</h3>
+      <div class="content has-text-justified section-copy">
+        <p>
+          We compare the average number of tokens generated per object, inference latency, and performance of different representations on SUN-RGBD and RefCOCOg under identical training settings and computation resources. Text-based coordinates generate excessive tokens (512 and 74 for a mask and a 3D box), incurring high latency; while text preserves raw coordinate values and keeps a slight accuracy edge on 3D grounding (37.5% vs. 34.1% AP3D), this marginal gain comes with 9&times; more tokens and 8.3&times; higher latency (4165 ms vs. 499 ms per object). Special tokens reduce the cost but degrade severely (17.5% AP3D) due to limited range and precision. In contrast, DVD matches text-level precision on 2D tasks, largely closes the 3D gap, and delivers the best accuracy&ndash;efficiency trade-off.
+        </p>
+      </div>
+      <div class="image-container figure-centered" style="margin-top: 1rem;">
+        <img src="./DVD_files/cost.png" alt="Computation cost and performance comparison of different representations" loading="lazy" decoding="async" class="method-figure">
+      </div>
+      <p class="figure-caption">Computation cost and performance comparison of different representations. Bubble area indicates the token count generated per object of the representation.</p>
+
+      <h3 class="subtitle is-4 section-subtitle-spaced">Ablation Studies</h3>
+      <div class="content has-text-justified section-copy">
+        <p>
+          All ablations are conducted on DVD-2B trained with 30% of the full training iterations for faster validation. We first measure the <b>vector reconstruction quality</b> of the unified vector autoencoder using perception metrics between ground truth and decoded sequences: it achieves negligible reconstruction error — 90.8% AP3D, 100.0% Precision, and 84.8% cIoU on 3D grounding, 2D grounding, and 2D RES — demonstrating its ability to preserve spatial information.
+        </p>
+      </div>
+
+      <div class="columns is-multiline ablation-grid">
+        <div class="column is-6-desktop is-12-tablet">
+          <p class="ablation-card-title">Effect of codebook size</p>
+          <div class="table-scroll">
+            <table class="metrics-table metrics-table-tab2">
+              <thead>
+                <tr><th><span class="cell-center">Codebook</span></th><th><span class="cell-center">AP3D@15 avg.</span></th><th><span class="cell-center">P@50 avg.</span></th><th><span class="cell-center">cIoU avg.</span></th></tr>
+              </thead>
+              <tbody>
+                <tr><td><span class="cell-center">2048</span></td><td><span class="cell-center">88.9</span></td><td><span class="cell-center">84.5</span></td><td><span class="cell-center">81.6</span></td></tr>
+                <tr class="metrics-highlight-row"><td><span class="cell-center"><b>4096</b></span></td><td><span class="cell-center"><b>90.8</b></span></td><td><span class="cell-center"><b>100.0</b></span></td><td><span class="cell-center"><b>84.8</b></span></td></tr>
+                <tr><td><span class="cell-center">8192</span></td><td><span class="cell-center">85.1</span></td><td><span class="cell-center">99.6</span></td><td><span class="cell-center">76.8</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="column is-6-desktop is-12-tablet">
+          <p class="ablation-card-title">Effect of geometric loss</p>
+          <div class="table-scroll">
+            <table class="metrics-table metrics-table-tab2">
+              <thead>
+                <tr><th><span class="cell-center">Geo. Loss</span></th><th><span class="cell-center">AP3D@15 avg.</span></th><th><span class="cell-center">P@50 avg.</span></th><th><span class="cell-center">cIoU avg.</span></th></tr>
+              </thead>
+              <tbody>
+                <tr><td><span class="cell-center">&#10007;</span></td><td><span class="cell-center">80.7</span></td><td><span class="cell-center">99.1</span></td><td><span class="cell-center">74.8</span></td></tr>
+                <tr class="metrics-highlight-row"><td><span class="cell-center"><b>&#10003;</b></span></td><td><span class="cell-center"><b>90.8</b></span></td><td><span class="cell-center"><b>100.0</b></span></td><td><span class="cell-center"><b>84.8</b></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="column is-6-desktop is-12-tablet">
+          <p class="ablation-card-title">Effect of downsampling scale $K$</p>
+          <div class="table-scroll">
+            <table class="metrics-table metrics-table-tab2">
+              <thead>
+                <tr><th><span class="cell-center">Scale</span></th><th><span class="cell-center">AP3D@15 avg.</span></th><th><span class="cell-center">P@50 avg.</span></th><th><span class="cell-center">cIoU avg.</span></th></tr>
+              </thead>
+              <tbody>
+                <tr><td><span class="cell-center">1</span></td><td><span class="cell-center">89.3</span></td><td><span class="cell-center"><b>100.0</b></span></td><td><span class="cell-center"><b>92.7</b></span></td></tr>
+                <tr class="metrics-highlight-row"><td><span class="cell-center"><b>2</b></span></td><td><span class="cell-center"><b>90.8</b></span></td><td><span class="cell-center"><b>100.0</b></span></td><td><span class="cell-center">84.8</span></td></tr>
+                <tr><td><span class="cell-center">4</span></td><td><span class="cell-center">83.7</span></td><td><span class="cell-center">31.5</span></td><td><span class="cell-center">60.4</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="column is-6-desktop is-12-tablet">
+          <p class="ablation-card-title">Effect of latent hidden size $z$</p>
+          <div class="table-scroll">
+            <table class="metrics-table metrics-table-tab2">
+              <thead>
+                <tr><th><span class="cell-center">$z$</span></th><th><span class="cell-center">AP3D@15 avg.</span></th><th><span class="cell-center">P@50 avg.</span></th><th><span class="cell-center">cIoU avg.</span></th></tr>
+              </thead>
+              <tbody>
+                <tr><td><span class="cell-center">8</span></td><td><span class="cell-center">83.0</span></td><td><span class="cell-center"><b>100.0</b></span></td><td><span class="cell-center">83.7</span></td></tr>
+                <tr class="metrics-highlight-row"><td><span class="cell-center"><b>16</b></span></td><td><span class="cell-center"><b>90.8</b></span></td><td><span class="cell-center"><b>100.0</b></span></td><td><span class="cell-center">84.8</span></td></tr>
+                <tr><td><span class="cell-center">32</span></td><td><span class="cell-center">88.4</span></td><td><span class="cell-center"><b>100.0</b></span></td><td><span class="cell-center"><b>85.3</b></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="content has-text-justified section-copy" style="margin-top: 0.75rem;">
+        <p>
+          <b>Codebook size.</b> A small codebook (2048) limits the capacity of the discrete latent space (88.9% AP3D), while an overly large one (8192) makes quantization and codebook learning harder, leaving under-trained entries (85.1% AP3D, 76.8% cIoU). A codebook size of 4096 achieves the best performance across all three tasks and is adopted as the default.
+        </p>
+        <p>
+          <b>Geometric loss.</b> Geometric guidance consistently improves reconstruction across all tasks, with notable gains on 3D grounding (+10.1% AP3D) and 2D RES (+10.0% cIoU), where fine-grained spatial fidelity (depth estimation, boundary delineation) is sensitive to small coordinate deviations. The gain on 2D grounding is marginal (+0.9% Precision) since coarse box localization is already near saturation — confirming that the geometric loss is an essential component, not merely a regularizer, for unifying 2D/3D grounding and mask-based segmentation in a single codebook.
+        </p>
+        <p>
+          <b>Downsampling scale.</b> Compared with the uncompressed representation ($K{=}1$), $K{=}2$ halves the token count while maintaining competitive performance and even slightly improving 3D grounding. An excessively large scale ($K{=}4$) causes severe information loss (31.5% Precision on 2D grounding). $K{=}2$ achieves the best trade-off between reconstruction precision and token cost.
+        </p>
+        <p>
+          <b>Latent hidden size.</b> A narrow bottleneck ($z{=}8$) constrains the encoded spatial information (83.0% AP3D), while enlarging $z$ to 32 brings no consistent gains as higher-dimensional latents are harder to quantize. $z{=}16$ provides sufficient capacity with stable quantization.
+        </p>
+      </div>
+
+      <div class="table-scroll" style="margin-top: 1rem;">
+        <table class="metrics-table metrics-table-tab2">
+          <thead>
+            <tr>
+              <th><span class="cell-center">3D Grounding</span></th>
+              <th><span class="cell-center">2D Grounding</span></th>
+              <th><span class="cell-center">2D RES</span></th>
+              <th><span class="cell-center">AP3D@15 avg.</span></th>
+              <th><span class="cell-center">P@50 avg.</span></th>
+              <th><span class="cell-center">cIoU avg.</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="cell-center">&#10003;</span></td><td><span class="cell-center"></span></td><td><span class="cell-center"></span></td><td><span class="cell-center">84.0</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td></tr>
+            <tr><td><span class="cell-center"></span></td><td><span class="cell-center">&#10003;</span></td><td><span class="cell-center"></span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">100.0</span></td><td><span class="cell-center">--</span></td></tr>
+            <tr><td><span class="cell-center"></span></td><td><span class="cell-center"></span></td><td><span class="cell-center">&#10003;</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">--</span></td><td><span class="cell-center">80.3</span></td></tr>
+            <tr class="metrics-group-start metrics-highlight-row"><td><span class="cell-center">&#10003;</span></td><td><span class="cell-center">&#10003;</span></td><td><span class="cell-center">&#10003;</span></td><td><span class="cell-center"><b>90.8</b></span></td><td><span class="cell-center"><b>100.0</b></span></td><td><span class="cell-center"><b>84.8</b></span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="figure-caption">Reconstruction performance of multi-task training in the unified vector autoencoder.</p>
+      <div class="content has-text-justified section-copy">
+        <p>
+          <b>Multi-task training.</b> Joint multi-task training improves performance on both 3D grounding (84.0% &rarr; 90.8% AP3D) and 2D RES (80.3% &rarr; 84.8% cIoU) over single-task training, while 2D grounding remains stable without degradation — demonstrating that DVD learns dynamic vector representations without sacrificing individual tasks.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3">Visualizations</h2>
+      <h3 class="subtitle is-4 section-subtitle-spaced">Qualitative Results</h3>
+      <div class="content has-text-justified section-copy">
+        <p>
+          The following figures show representative qualitative results of DVD on 3D grounding, 2D grounding, 2D referring segmentation, and unified 2D/3D perception. DVD achieves satisfactory results even in dark and complex 3D scenes, precise 2D localization and segmentation across diverse objects and scenes, and simultaneous 2D and 3D perception within a single model. Click or zoom in to inspect the high-resolution details.
+        </p>
+      </div>
+
+      <div class="gallery-item">
+        <img src="./DVD_files/vis1.png" alt="DVD qualitative results on 2D and 3D perception tasks" loading="lazy" decoding="async">
+        <p class="figure-caption">Qualitative visualization of DVD on 2D and 3D perception tasks. Rows from top to bottom: 3D grounding, 2D grounding, 2D RES, and unified 2D/3D perception.</p>
+      </div>
+
+      <div class="gallery-item">
+        <img src="./DVD_files/vis2.png" alt="DVD 3D grounding visualization" loading="lazy" decoding="async">
+        <p class="figure-caption">3D grounding results across indoor and outdoor scenarios; DVD maintains precise 3D localization even under challenging conditions such as rainy weather and cluttered scenes with dense objects.</p>
+      </div>
+
+      <div class="gallery-item">
+        <img src="./DVD_files/vis3.png" alt="DVD 2D grounding visualization" loading="lazy" decoding="async">
+        <p class="figure-caption">2D grounding results: DVD accurately follows instructions and outputs tightly aligned bounding boxes without misalignment.</p>
+      </div>
+
+      <div class="gallery-item">
+        <img src="./DVD_files/vis4.png" alt="DVD 2D referring segmentation visualization" loading="lazy" decoding="async">
+        <p class="figure-caption">2D referring expression segmentation results: DVD precisely segments target objects of arbitrary shapes, even with ambiguous boundaries or overlapping objects.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths abstract-card">
+          <h2 class="title is-3">Conclusion</h2>
+          <div class="content has-text-justified">
+            <p>
+              Existing MLLM-based perception methods struggle with excessive token overhead from text-based coordinate representation and precision and range constraints from fixed-range quantization, especially in 3D domains. To address the key limitation, we propose <b>DVD</b> that unifies 2D and 3D perception task representations for efficient integration with MLLMs. By transforming heterogeneous perceptual outputs into 1D vector sequences and mapping them to compact discrete tokens, DVD eliminates the excessive token overhead and the precision limitations. Extensive experiments on 2D and 3D benchmarks show that DVD achieves superior performance while significantly reducing token count and inference latency, offering an efficient and general framework for equipping MLLMs with perception capabilities.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <div class="citation-header">
+        <h2 class="title">Citation</h2>
+        <button class="copy-citation-button" type="button" data-copy-target="citation-bibtex">Copy</button>
+      </div>
+      <pre><code id="citation-bibtex">
+@article{hou2026dvd,
+  title={DVD: Dynamic Vector Decoding for Efficient MLLM-based Perception},
+  author={Hou, Jinghua and Liu, Zhe and Zhao, Hengshuang},
+  journal={arXiv preprint arXiv:XXXX.XXXXX},
+  year={2026}
+}
+      </code></pre>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+            <p>
+              This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank" rel="noopener noreferrer">Academic Project Page Template</a> which was adopted from
+              the <a href="https://nerfies.github.io/" target="_blank" rel="noopener noreferrer">Nerfies</a> project
+              page.
+              <br> This website is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
+                Commons
+                Attribution-ShareAlike 4.0 International License</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./DVD_files/index.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var copyButton = document.querySelector('[data-copy-target="citation-bibtex"]');
+      var citationBlock = document.getElementById('citation-bibtex');
+      if (!copyButton || !citationBlock) return;
+      var defaultLabel = 'Copy';
+      var copiedLabel = 'Copied!';
+      var resetTimer;
+      function updateButtonLabel(label, copied) {
+        copyButton.textContent = label;
+        copyButton.classList.toggle('is-copied', copied);
+      }
+      async function copyCitation() {
+        var citationText = citationBlock.textContent.replace(/^\s+|\s+$/g, '');
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(citationText);
+          } else {
+            var textArea = document.createElement('textarea');
+            textArea.value = citationText;
+            textArea.setAttribute('readonly', '');
+            textArea.style.position = 'absolute';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+          }
+          updateButtonLabel(copiedLabel, true);
+          window.clearTimeout(resetTimer);
+          resetTimer = window.setTimeout(function () { updateButtonLabel(defaultLabel, false); }, 1800);
+        } catch (error) {
+          updateButtonLabel('Failed', false);
+          window.clearTimeout(resetTimer);
+          resetTimer = window.setTimeout(function () { updateButtonLabel(defaultLabel, false); }, 1800);
+        }
+      }
+      copyButton.addEventListener('click', copyCitation);
+    });
+  </script>
+
+</body>
+</html>
