@@ -4,6 +4,7 @@
 
 PhD Student, The University of Hong Kong
 Research: 3D/4D Vision · Robotics · Spatial Intelligence
+Email: jinghuahou[at]connect.hku.hk
 
 - [Google Scholar](https://scholar.google.com/citations?user=aoqtBAsAAAAJ&hl=en)
 - [GitHub](https://github.com/AlmoonYsl)
