@@ -36,13 +36,13 @@ Hi, I am a first-year PhD student at The University of Hong Kong, fortunately su
 - ![thumbnail](assets/streampi.mp4)
   **[StreamPI: Streaming Multimodal Temporal Modeling for Vision-Language-Action Models](https://arxiv.org/abs/2608.26067)**
   *NeurIPS 2026*
-  Zhe Liu\*, **Jinghua Hou**\*, Yuxiang Lu, Zhenya Yang, Xianzhe Fan, Junyu Luo, Junyi Li, Ruihua Han, Zhi Hou, Hengshuang Zhao
+  Zhe Liu\*, **Jinghua Hou**\*, Yuxiang Lu, Zhenya Yang, Xianzhe Fan, Junwei Luo, Junyi Li, Ruihua Han, Zhi Hou, Hengshuang Zhao
   [Paper](https://arxiv.org/abs/2608.26067) [Page](https://happinesslz.github.io/projects/StreamPI/) [Code](https://github.com/hku-sail/StreamPI)
 
 - ![thumbnail](assets/hybridtm.png)
   **[HybridTM: Combining Transformer and Mamba for 3D Semantic Segmentation](https://arxiv.org/pdf/2507.18575)**
   *IROS 2025*
-  Xiaoshuai Wang\*, **Jinghua Hou**\*, Zhe Liu, Yingying Zhu
+  Xingxu Wang\*, **Jinghua Hou**\*, Zhe Liu, Yingying Zhu
   [Paper](https://arxiv.org/pdf/2507.18575) [Code](https://github.com/deepinact/HybridTM)
 
 - ![thumbnail](assets/lion.png)
